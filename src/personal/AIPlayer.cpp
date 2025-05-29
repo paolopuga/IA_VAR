@@ -7,6 +7,33 @@ const int num_pieces = 2;
 const int PROFUNDIDAD_MINIMAX = 4; // Umbral maximo de profundidad para el metodo MiniMax
 const int PROFUNDIDAD_ALFABETA = 8; // Umbral maximo de profundidad para la poda Alfa_Beta
 
+void AIPlayer::loadParams() {
+    std::ifstream file("bonuses.csv");
+    if (!file.is_open()) {
+        std::cerr << "Error: no se pudo abrir bonuses.csv" << std::endl;
+        return;
+    }
+    std::string line;
+    std::getline(file, line); // cabecera
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string key, val;
+        if (std::getline(ss, key, ',') && std::getline(ss, val)) {
+            try {
+                _params[key] = std::stof(val);
+            } catch (...) {
+                std::cerr << "Formato inválido en CSV: " << line << std::endl;
+            }
+        }
+    }
+}
+
+float AIPlayer::getParam(const std::string &name, float def) {
+    auto it = _params.find(name);
+    return (it != _params.end() ? _params[name] : def);
+}
+
+
 bool AIPlayer::move(){
    cout << COUT_ORANGE_BOLD << "Realizo un movimiento automatico" << COUT_NOCOLOR << endl;
 
@@ -22,79 +49,118 @@ bool AIPlayer::move(){
 }
 
 void AIPlayer::think(color& c_piece, int& id_piece, int& dice) const{
-   // IMPLEMENTACIÓN INICIAL DEL AGENTE
-   // Esta implementación realiza un movimiento aleatorio.
-   // Se proporciona como ejemplo, pero se debe cambiar por una que realice un movimiento inteligente
-   //como lo que se muestran al final de la función.
-
-   // OBJETIVO: Asignar a las variables c_piece, id_piece, dice (pasadas por referencia) los valores,
-   //respectivamente, de:
-   // - color de ficha a mover
-   // - identificador de la ficha que se va a mover
-   // - valor del dado con el que se va a mover la ficha.
-
-   // El id de mi jugador actual.
-   int player = actual->getCurrentPlayerId();
-
-   // Vector que almacenará los dados que se pueden usar para el movimiento
-   vector<int> current_dices;
-   // Vector que almacenará los ids de las fichas que se pueden mover para el dado elegido.
-   vector<tuple<color, int>> current_pieces;
-
-   // Se obtiene el vector de dados que se pueden usar para el movimiento
-   current_dices = actual->getAvailableNormalDices(player);
-   // Elijo un dado de forma aleatoria.
-   dice = current_dices[rand() % current_dices.size()];
-
-   // Se obtiene el vector de fichas que se pueden mover para el dado elegido
-   current_pieces = actual->getAvailablePieces(player, dice);
-
-   // Si tengo fichas para el dado elegido muevo una al azar.
-   if (current_pieces.size() > 0){
-      int random_id = rand() % current_pieces.size();
-      id_piece = get<1>(current_pieces[random_id]); // get<i>(tuple<...>) me devuelve el i-ésimo
-      c_piece = get<0>(current_pieces[random_id]); // elemento de la tupla
-   }
-   else{
-      // Si no tengo fichas para el dado elegido, pasa turno (la macro SKIP_TURN me permite no mover).
-      id_piece = SKIP_TURN;
-      c_piece = actual->getCurrentColor(); // Le tengo que indicar mi color actual al pasar turno.
-   }
-
-   
-   // El siguiente código se proporciona como sugerencia para iniciar la implementación del agente.
 
    float valor; // Almacena el valor con el que se etiqueta el estado tras el proceso de busqueda.
    float alpha = menosinf, beta = masinf; // Cotas iniciales de la poda AlfaBeta
    // Llamada a la función para la poda (los parámetros son solo una sugerencia, se pueden modificar).
    ValoracionTest valoracionTest;
-
-   // ----------------------------------------------------------------- //
+   Mejora1 mejora1;
 
    // Si quiero poder manejar varios comportamientos, puedo usar la variable id del agente para usar una u otra.
-   // switch (id)
-   // {
-   // case 0:
-   //    // Mi implementación base de la poda con ValoracionTest
-   //    valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, &valoracionTest);
-   //    break;
-   // case 1:
-   //    // Mi implementación definitiva con la que gano a todos los ninjas.
-   //    valor = Poda_Final2DefinitivaAhoraSi(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, &miValoracion3);
-   //    break;
-   // case 2:
-   //    // Las distintas pruebas que he realizado (primera prueba)
-   //    valor = Poda_AlfaBeta_Mejorada(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, &miValoracion1);
-   //    break;
-   // case 3:
-   //    // Las distintas pruebas que he realizado (segunda prueba)
-   //    valor = Poda_AlfaBeta_SegundaMejora(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, &miValoracion1);
-   //    break;
-   //  // ...
-   // }
+   switch (id)
+   {
+   case 0:
+      // Mi implementación base de la poda con ValoracionTest
+      valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, &mejora1);
+      break;
+   case 1:
+      // Mi implementación definitiva con la que gano a todos los ninjas.
+      //valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, &valoracionTest);
+      break;
+   case 2:
+      // Las distintas pruebas que he realizado (primera prueba)
+      //valor = Poda_AlfaBeta_ProfDin(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, &valoracionTest);
+      break;
+   case 3:
+      // Las distintas pruebas que he realizado (segunda prueba)
+      //valor = Poda_AlfaBeta_Orden(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, &valoracionTest);
+      break;
+   case 4:
+      // Las distintas pruebas que he realizado (tercera prueba)
+      //valor = Poda_AlfaBeta_Probab(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, &valoracionTest, 0.1);
+      break;
+   }
 
 }
 
+/****************** PODAS ******************/
+
+float Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int profundidad_max,
+   color &c_piece, int &id_piece, int &dice, float alpha, float beta, Heuristic *heuristic){
+// Caso base: si llegamos al límite de profundidad o el juego ha terminado
+   if (profundidad == profundidad_max || actual.gameOver()) {
+      return heuristic->evaluate(actual, jugador);
+   }
+
+   bool soyMax = actual.getCurrentPlayerId() == jugador; //para saber si es un nodo max
+   double valor; //valor que devuelve el hijo
+   ParchisBros hijos = actual.getChildren();//hijos
+   for(auto it = hijos.begin(); it != hijos.end(); ++it){
+        //vemos que valor nos devuelve el hijo
+        valor = Poda_AlfaBeta(*it,jugador,profundidad+1,profundidad_max,c_piece,id_piece,dice,alpha,beta,heuristic);
+
+        if(soyMax){//si somos max
+
+         if (NodeCounter::isLimitReached()) {
+            std::cout << "Límite de nodos alcanzado, devolviendo el mejor nodo parcial" << std::endl;
+            if (profundidad == 0) {
+               c_piece = it.getMovedColor();
+               id_piece = it.getMovedPieceId();
+               dice = it.getMovedDiceValue();
+            }
+            return alpha;
+         }
+
+
+         if(alpha < valor){//si el nuevo valor es mejor que alpha lo actualizamos
+               alpha = valor;
+               if(profundidad == 0){//para que se actualice la jugada
+                  c_piece = it.getMovedColor();
+                  id_piece = it.getMovedPieceId();
+                  dice = it.getMovedDiceValue();
+               }
+               }
+               if(alpha >= beta){//si se poda
+                  break;
+               }
+        }
+        else{//si es min
+
+         if (NodeCounter::isLimitReached()) {
+            std::cout << "Límite de nodos alcanzado, devolviendo el mejor nodo parcial" << std::endl;
+            return heuristic->evaluate(actual, jugador);
+         }
+         if(beta > valor)//si el valor es menor que beta beta se actualiza
+               beta = valor;
+
+         if(beta <= alpha)//si se poda
+               break;
+        }
+    }
+
+    if(soyMax)//si somos max devolvemos alpha, si no beta
+        return alpha;
+    else
+        return beta; 
+}
+
+float Poda_AlfaBeta_ProfDin(const Parchis &actual, int jugador, int profundidad, int profundidad_max,
+   color &c_piece, int &id_piece, int &dice, float alpha, float beta, Heuristic *heuristic){
+
+}
+
+float Poda_AlfaBeta_Orden(const Parchis &actual, int jugador, int profundidad, int profundidad_max,
+   color &c_piece, int &id_piece, int &dice, float alpha, float beta, Heuristic *heuristic){
+
+}
+
+float Poda_AlfaBeta_Probab(const Parchis &actual, int jugador, int profundidad, int profundidad_max,
+   color &c_piece, int &id_piece, int &dice, float alpha, float beta, Heuristic *heuristic, float epsilon_prob){
+
+}
+
+
+/****************** HEURISTICAS ******************/
 
 float ValoracionTest::getHeuristic(const Parchis& estado, int jugador) const{
    // Heurística de prueba proporcionada para validar el funcionamiento del algoritmo de búsqueda.
@@ -153,3 +219,38 @@ float ValoracionTest::getHeuristic(const Parchis& estado, int jugador) const{
       return puntuacion_jugador - puntuacion_oponente;
    }
 }
+
+float Mejora1::getHeuristic(const Parchis& estado, int jugador) const{
+   int ganador = estado.getWinner();
+   int oponente = (jugador + 1) % 2;
+
+   // Parámetros de victoria/derrota
+   if (ganador == jugador)   return gana;
+   if (ganador == oponente)  return pierde;
+
+   // Pesos dinámicos desde CSV
+   float wSafe    = AIPlayer::getParam("safe", 1.0f);
+   float wGoal    = AIPlayer::getParam("goal", 5.0f);
+   float wOppSafe = AIPlayer::getParam("opp_safe", 1.0f);
+   float wOppGoal = AIPlayer::getParam("opp_goal", 5.0f);
+
+   int score = 0;
+   // Mis fichas
+   for (auto c : estado.getPlayerColors(jugador)) {
+      for (int i = 0; i < num_pieces; ++i) {
+         if (estado.isSafePiece(c, i)) score += int(wSafe);
+         if (estado.getBoard().getPiece(c,i).get_box().type == goal)
+               score += int(wGoal);
+      }
+   }
+   // Fichas oponente
+   for (auto c : estado.getPlayerColors(oponente)) {
+      for (int i = 0; i < num_pieces; ++i) {
+         if (estado.isSafePiece(c, i)) score -= int(wOppSafe);
+         if (estado.getBoard().getPiece(c,i).get_box().type == goal)
+               score -= int(wOppGoal);
+      }
+   }
+   return float(score);
+}
+   

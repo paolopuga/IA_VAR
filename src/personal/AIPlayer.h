@@ -4,8 +4,28 @@
 # include "../../include/model/Attributes.h"
 # include "../../include/model/Player.h"
 # include "../../include/model/Heuristic.h"
+# include <unordered_map>
+# include <fstream>
+# include <sstream>
+# include <iostream>
+
 
 class ValoracionTest: public Heuristic{
+   protected:
+      virtual float getHeuristic(const Parchis &estado, int jugador) const;
+};
+
+class Mejora1: public Heuristic{
+   protected:
+      virtual float getHeuristic(const Parchis &estado, int jugador) const;
+};
+
+class Mejora2: public Heuristic{
+   protected:
+      virtual float getHeuristic(const Parchis &estado, int jugador) const;
+};
+
+class Mejora3: public Heuristic{
    protected:
       virtual float getHeuristic(const Parchis &estado, int jugador) const;
 };
@@ -15,13 +35,28 @@ protected:
    //Id identificativo del jugador
    const int id;
 
+private:
+   inline static std::unordered_map<std::string, float> _params;
+   static void loadParams();  // carga "bonuses.csv"
+
 public:
+
+   // Llamar una vez al iniciar el programa
+   static void initParams(const std::string &csvPath);
+
+   // Obtener cualquier parámetro por nombre
+   static float getParam(const std::string &name, float def = 0.f);
+
+
    /**
     * @brief Constructor de un objeto AIPlayer
     *
     * @param name Nombre del jugador
     */
    inline AIPlayer(const string& name): Player(name), id(1){
+      if (_params.empty()) {
+         loadParams();  // Carga los parámetros desde el CSV si aún no se ha hecho
+      }
    };
 
    /**
@@ -31,6 +66,9 @@ public:
     * @param id Id del jugador
     */
    inline AIPlayer(const string& name, const int id): Player(name), id(id){
+      if (_params.empty()) {
+         loadParams();  // Carga los parámetros desde el CSV si aún no se ha hecho
+      }
    };
 
    /**
@@ -78,6 +116,8 @@ public:
  * La propuesta es solo sugerencia, los parámetros de la declaración podrían variar.
  */
 // float Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int profundidad_max, color &c_piece, int &id_piece, int &dice, float alpha, float beta, Heuristic *heuristic);
+float Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int profundidad_max,
+   color &c_piece, int &id_piece, int &dice, float alpha, float beta, Heuristic *heuristic);
 
 
 

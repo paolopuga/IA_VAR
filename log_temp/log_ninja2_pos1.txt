@@ -4,8 +4,8 @@ HELLO sent.
 version: 4
 args: ninjagame 
 204 ACCEPTED received
-ip_addr: 150.214.203.225 port: 57002
-Connected to server 150.214.203.225:57002
+ip_addr: 150.214.203.225 port: 57000
+Connected to server 150.214.203.225:57000
 GAME_PARAMETERS sent
 player: 0 name: MejoraTest init_board: 5 ai_id: 2
 206 OK_START_GAME received
@@ -20,49 +20,3 @@ Message: Ninja 2: Una batalla de igual a igual.
 [1;33mJugador actual: 1 (MejoraTest)[0m
 [1;36m----------------[0m
 [1;38;5;208mRealizo un movimiento automatico[0m
-[1;38;5;208mMovimiento elegido: Amarillo 0 69[0m
-[1;37m====================[0m
-[1;37mNodos generados: 222948[0m
-[1;37mNodos evaluados: 135795[0m
-[1;32mTotal de nodos: 358743[0m
-[1;32mTiempo de generación+evaluación: 1.75919[0m
-[1;37m====================[0m
-[1;37mTiempo de movimiento: 1.90185 segundos[0m
-301 MOVED sent
-Move: 2 Amarillo 0 69
-[1;36m----------------[0m
-[1;36mTurno: 2[0m
-[1;34mJugador actual: 2 (Ninja 2: Una batalla de igual a igual.)[0m
-[1;36m----------------[0m
-[1;38;5;208mEsperando movimiento del oponente...[0m
-301 MOVED received
-Move: 2 Amarillo 0 69
-[1;38;5;208mEsperando movimiento del oponente...[0m
-102 TEST_ALIVE received
-102 TEST_ALIVE received. Still alive.
-[1;38;5;208mEsperando movimiento del oponente...[0m
-102 TEST_ALIVE received
-102 TEST_ALIVE received. Still alive.
-[1;38;5;208mEsperando movimiento del oponente...[0m
-102 TEST_ALIVE received
-102 TEST_ALIVE received. Still alive.
-[1;38;5;208mEsperando movimiento del oponente...[0m
-301 MOVED received
-Move: 3 Rojo 0 1
-[1;37m====================[0m
-[1;37mNodos generados: 0[0m
-[1;37mNodos evaluados: 0[0m
-[1;32mTotal de nodos: 0[0m
-[1;32mTiempo de generación+evaluación: 0[0m
-[1;37m====================[0m
-[1;37mTiempo de movimiento: 30.5473 segundos[0m
-301 MOVED sent
-Move: 3 Rojo 0 1
-[1;36m----------------[0m
-[1;36mTurno: 3[0m
-[1;31mJugador actual: 2 (Ninja 2: Una batalla de igual a igual.)[0m
-[1;36m----------------[0m
-[1;38;5;208mEsperando movimiento del oponente...[0m
-102 TEST_ALIVE received
-102 TEST_ALIVE received. Still alive.
-[1;38;5;208mEsperando movimiento del oponente...[0m

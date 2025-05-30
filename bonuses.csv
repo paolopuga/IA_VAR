@@ -1,5 +1,8 @@
 name,value
-safe,0.8
-opp_safe,0.9
-goal,6.0
-opp_goal,4.9
+safe,0.0
+goal,3.0
+home,6.0
+eaten,4.5
+bounced,4.0
+gmove,3.5
+queue,1.0

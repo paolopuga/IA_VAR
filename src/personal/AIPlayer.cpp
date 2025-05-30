@@ -231,26 +231,55 @@ float Mejora1::getHeuristic(const Parchis& estado, int jugador) const{
    // Pesos dinámicos desde CSV
    float wSafe    = AIPlayer::getParam("safe", 1.0f);
    float wGoal    = AIPlayer::getParam("goal", 5.0f);
-   float wOppSafe = AIPlayer::getParam("opp_safe", 1.0f);
-   float wOppGoal = AIPlayer::getParam("opp_goal", 5.0f);
+   float wHome    = AIPlayer::getParam("home", 2.0f);
+   float wEaten   = AIPlayer::getParam("eaten", 3.0f);
+   float wBounced = AIPlayer::getParam("bounced", 1.0f);
+   float wGmove   = AIPlayer::getParam("gmove", 2.0f);
+   float wQueue   = AIPlayer::getParam("queue", 1.0f);
 
-   int score = 0;
+   const vector<color>& my_colors = estado.getPlayerColors(jugador);
+   const vector<color>& op_colors = estado.getPlayerColors(oponente);
+   const Board& board = estado.getBoard();  // Evita llamar en cada iteración
+
    // Mis fichas
-   for (auto c : estado.getPlayerColors(jugador)) {
-      for (int i = 0; i < num_pieces; ++i) {
-         if (estado.isSafePiece(c, i)) score += int(wSafe);
-         if (estado.getBoard().getPiece(c,i).get_box().type == goal)
-               score += int(wGoal);
-      }
-   }
-   // Fichas oponente
-   for (auto c : estado.getPlayerColors(oponente)) {
-      for (int i = 0; i < num_pieces; ++i) {
-         if (estado.isSafePiece(c, i)) score -= int(wOppSafe);
-         if (estado.getBoard().getPiece(c,i).get_box().type == goal)
-               score -= int(wOppGoal);
-      }
-   }
-   return float(score);
+   auto puntuacion_colores = [&](const vector<color>& colores) {
+       int puntuacion = 0;
+       for (const color& c : colores) {
+           for (int j = 0; j < num_pieces; ++j) {
+               const Piece& pieza = board.getPiece(c, j);
+               if (estado.isSafePiece(c, j) ) {
+                   puntuacion += wSafe;
+               } else if (pieza.get_box().type == goal) {
+                   puntuacion += wGoal;
+               } else if (pieza.get_box().type == home) {
+                  puntuacion -= wHome;
+               } else if (pieza.get_box().type == final_queue) {
+                   puntuacion += wQueue;
+               }
+
+               // añado puntuación por distancia a la meta
+               int distancia = estado.distanceToGoal(c, pieza.get_box());
+               puntuacion += (75 - distancia)/20;
+
+               
+           }
+       }
+
+       // añado puntuacion por el ultimo movimiento realizado
+      if(estado.isEatingMove())
+         puntuacion+= wEaten;
+      else if(estado.isGoalMove())
+         puntuacion += wGmove;
+      else if(estado.goalBounce())
+         puntuacion -= wBounced;
+
+       return puntuacion;
+   };
+
+   int puntuacion_jugador = puntuacion_colores(my_colors);
+   
+   int puntuacion_oponente = puntuacion_colores(op_colors);
+
+   return puntuacion_jugador - puntuacion_oponente;
 }
    
